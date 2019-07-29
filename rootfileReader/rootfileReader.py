@@ -117,6 +117,25 @@ def GetFiles(outname, outname2 = ''):
       files.append(fname)   
   return files
 
+def GetOnlyCount(files, sCount = 'Count'):
+  if isinstance(files, list):
+    sumc = 0;
+    tfiles = []
+    for f in files:
+      c = GetOnlyCount(f)
+      sumc += c
+    return sumc
+  else:
+    count = 0; 
+    #print '...reading file "%s"'%files
+    f = TFile.Open(files)
+    hCount = TH1F()
+    f.GetObject(sCount, hCount)
+    if isinstance(hCount, TH1F): 
+      count = hCount.GetBinContent(1) 
+    f.Close()
+    return count
+
 def GetCount(files, sCount = 'Count', sSumOfWeights = 'SumWeights', treename = 'Events'):
   if isinstance(files, list):
     suma = 0; sumb = 0; sumc = 0;
@@ -133,6 +152,7 @@ def GetCount(files, sCount = 'Count', sSumOfWeights = 'SumWeights', treename = '
     if isinstance(hCount,      TH1F): count   = hCount.GetBinContent(1) 
     if isinstance(hSumWeights, TH1F): sow     = hSumWeights.GetBinContent(1)
     if isinstance(tree,       TTree): entries = tree.GetEntries()
+    f.Close()
     return [entries, count, sow]
 
 def PrintCount(outname, outname2 = ''):
