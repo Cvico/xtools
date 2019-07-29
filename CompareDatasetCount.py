@@ -11,7 +11,8 @@
 '''
 
 from crabTools.GetEventsDataset import GetEntriesDAS
-from rootfileReader.rootfileReader import SearchFiles, GetAllTrees
+from crabTools.SubmitDatasets import ReadLines
+from rootfileReader.rootfileReader import SearchFiles, GetAllTrees, GetOnlyCount, FixStringLength, GetFiles
 
 import argparse
 parser = argparse.ArgumentParser(description='Check events with events in das')
@@ -38,22 +39,30 @@ fname       = args.file
 
 doDataset   = False if datasetName == '' else True
 
-dataset = ReadLines(path) if datasetName != '' else datasetName
+dataset = ReadLines(fname) if datasetName == '' else datasetName
 
+print 'Getting info from DAS...'
 dic = GetEntriesDAS(dataset, verbose, doPretend)
 # {dataset : [nfiles, nev]} or [nfiles, nev]
 datasets = dic.keys()
 
 
-dicfiles = SearchFiles(path, prodname)
+print 'Searching files of prod ', prodName, ' in ', path
+dicfiles = SearchFiles(path, prodName)
 # {samplename : path}
 
 samples = dicfiles.keys()
+samples.sort()
 
 for s in samples:
-  entries, count, sow = GetCount(GetAllTrees(dicfiles[s]))
+  if verbose: print 'Getting count for sample ', s
+  trees = GetFiles(dicfiles[s], s) if prodName == "" else GetAllTrees(dicfiles[s])
+  count = GetOnlyCount(trees)
   for d in datasets:
-    if not s in d: continue
+    dname = '%s'%d
+    dname = dname.replace('/', '_')
+    dname = dname.replace('-', '_')
+    if not s in dname: continue
     nfiles, nev = dic[d]
     fr = float(count)/nev*100
-    print '%s : %1.2f %s'%(FixStringLength(s), fr, '%')
+    print '[%i] [%i] %s : %1.2f %s'%(nev, count, FixStringLength(s), fr, '%')
