@@ -11,7 +11,7 @@
 
 import os, sys
 import argparse
-from rootfilesReader import *
+from rootfileReader import *
 
 def rmProd(dirname, prodname):
   dirnames, samplenames = haddProduction(dirname, prodname, verbose = 1)
@@ -47,12 +47,12 @@ pretend    = args.pretend
 dirname    = args.path
 prodname   = args.prodName
 outdir     = args.outdir
-maxSize    = args.maxSize
+maxSize    = float(args.maxSize)
 outname    = args.outname
 sample     = args.sample
 
 if prodname == '': haddtrees(dirname, outname, outdir, maxsize = maxSize, pretend = pretend, verbose = verbose)
 else: 
   if sample == '': haddForAllProd(dirname, prodname, pretend, outdir, maxSize, verbose)
-  else:            haddSampleInProd(dirname, prodname, sample, pretend, outdir,maxSize, verbose)
+  else:            haddSampleInProd(dirname, prodname, sample, pretend, outdir, maxSize, verbose)
    
